@@ -10,3 +10,5 @@ This saves per action to a .ini which stores info such as character name, spells
 
 ## How to use it?
 Once the .ini is filled out, proceed to click the Use Spell buttons for the spell level you just used and click the Rest - Reset when you want everything to reset to your configured Spells per day per spell level.
+
+### Thanks to https://github.com/rellissc for the help with some of the methods used.
