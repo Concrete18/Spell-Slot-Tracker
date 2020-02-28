@@ -5,10 +5,12 @@ import configparser
 SpellTracker = configparser.ConfigParser()
 SpellTracker.read('SpellSlots.ini')
 
+# Defaults for Background and fonts
 Background = 'LightSteelBlue1'
 BoldBaseFont = "Arial Bold"
 BaseFont = "Arial"
 
+# Start of Tkinter interface
 SpellSlots = Tk()
 SpellSlots.title("Spell Slot Counter")
 SpellSlots.geometry("464x605")
