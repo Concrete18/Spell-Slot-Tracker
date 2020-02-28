@@ -14,7 +14,7 @@ BaseFont = "Arial"
 SpellSlots = Tk()
 SpellSlots.title("Spell Slot Counter")
 SpellSlots.geometry("464x605")
-SpellSlots.iconbitmap('Fireball.ico')
+SpellSlots.iconbitmap('Fireball Icon.ico')
 SpellSlots.configure(bg=Background)
 
 TitleFrame = Frame(SpellSlots, bg=Background)
