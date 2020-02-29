@@ -9,6 +9,7 @@ SpellTracker.read('SpellSlots.ini')
 Background = 'LightSteelBlue1'
 BoldBaseFont = "Arial Bold"
 BaseFont = "Arial"
+FontColor = "Black"
 
 # Start of Tkinter interface
 SpellSlots = Tk()
@@ -47,7 +48,8 @@ def WriteToSpellTracker():
 Title = Label(
     TitleFrame, text="Spell Slot Counter", font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2, pady=(5, 5))
 CharacterName = Label(
-    TitleFrame, text="for " + str(GetCharacterName()), font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2)
+    TitleFrame, text="for " + str(GetCharacterName()), font=(BoldBaseFont, 20),
+    fg=FontColor, bg=Background).grid(columnspan=2)
 
 # Spell Level Info and Buttons
 SpellInfoList = []
