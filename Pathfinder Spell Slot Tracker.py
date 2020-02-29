@@ -44,8 +44,10 @@ def WriteToSpellTracker():
         SpellTracker.write(configfile)
 
 
-Title = Label(TitleFrame, text="Spell Slot Counter", font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2, pady=(5, 5))
-CharacterName = Label(TitleFrame, text="for " + str(GetCharacterName()), font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2)
+Title = Label(
+    TitleFrame, text="Spell Slot Counter", font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2, pady=(5, 5))
+CharacterName = Label(
+    TitleFrame, text="for " + str(GetCharacterName()), font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2)
 
 # Spell Level Info and Buttons
 SpellInfoList = []
@@ -56,9 +58,10 @@ for x in range(1, 10):
 
 
 def SpellUsedButton(SlotNumber):
-    if int(SpellTracker.get('Level ' + str(SlotNumber) + ' Spells', 'Spells Left')) > 1:
-        SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', str(int(SpellTracker.get('Level ' + str(SlotNumber) + ' Spells', 'Spells Left')) - 1))
-        SpellInfoList[SlotNumber - 1].config(text="Level " + str(SlotNumber) + " - " + str(SpellTracker.get('Level ' + str(SlotNumber) + ' Spells', 'Spells Left')) + " Spells left of " + str(SpellTracker.get('Level ' + str(SlotNumber) + ' Spells', 'spells per day')))
+    if int(SpellsLeft(SlotNumber)) > 1:
+        SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', str(SpellsLeft(SlotNumber)-1))
+        SpellInfoList[SlotNumber - 1].config(text="Level " + str(SlotNumber) + " - " + str(SpellsLeft(SlotNumber))
+                                                  + " Spells left of " + str(SpellsPerDay(SlotNumber)))
         WriteToSpellTracker()
         print('1 Spell Used')
     else:
@@ -71,10 +74,12 @@ def SpellUsedButton(SlotNumber):
 
 def ResetSlots():
     for SpellLevel in range(1, 10):
-        SpellTracker.set('Level ' + str(SpellLevel) + ' Spells', 'Spells Left', str(SpellTracker.get('Level ' + str(SpellLevel) + ' Spells', 'spells per day')))
+        SpellTracker.set('Level ' + str(SpellLevel) + ' Spells', 'Spells Left', str(SpellsPerDay(SpellLevel)))
         WriteToSpellTracker()
-        if int(SpellTracker.get('Level ' + str(SpellLevel) + ' Spells', 'Spells Known')) > 0:
-            SpellInfoList[SpellLevel-1].config(text="Level " + str(SpellLevel) + " - " + str(SpellTracker.get('Level ' + str(SpellLevel) + ' Spells', 'Spells Left')) + " Spells left of " + str(SpellTracker.get('Level ' + str(SpellLevel) + ' Spells', 'spells per day')))
+        if int(SpellsKnown(SpellLevel)) > 0:
+            SpellInfoList[SpellLevel-1].config(
+                text="Level " + str(SpellLevel) + " - " + str(SpellsLeft(SpellLevel)) + " Spells left of "
+                     + str(SpellsPerDay(SpellLevel)))
             SpellButtonList[SpellLevel-1].config(state='normal')
             print('Level ' + str(SpellLevel) + ' Slot Reset')
         else:
@@ -85,9 +90,10 @@ RowCounter = 0
 # Spell Level Tkinter Labels
 for lbl in SpellInfoList:
     if SpellsKnown(RowCounter+1) > 0 and SpellsLeft(RowCounter+1) > 0:
-        lbl.config(text="Level " + str(RowCounter+1) + " - " + str(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Left')) + " Spells left of " + str(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'spells per day')), font=(BaseFont, 15), bg=Background)
+        lbl.config(text="Level " + str(RowCounter+1) + " - " + str(SpellsLeft(RowCounter+1)) + " Spells left of " +
+                        str(SpellsPerDay(RowCounter+1)), font=(BaseFont, 15), bg=Background)
         lbl.grid(column=0, row=RowCounter + 2, padx=(20, 10))
-    elif int(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Known')) > 0 and int(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Left')) < 1:
+    elif int(SpellsKnown(RowCounter+1)) > 0 and int(SpellsLeft(RowCounter+1)) < 1:
         lbl.config(text='Level ' + str(RowCounter+1) + ' - No Slots left      ')
 
     else:
@@ -99,11 +105,13 @@ for lbl in SpellInfoList:
 RowCounter = 0
 # Spell Level Tkinter Buttons for using Spells
 for button in SpellButtonList:
-    if int(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Known')) > 1 and int(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Left')) > 0:
-        button.config(text="Use Level "+str(RowCounter+1)+" Spell", font=(BaseFont, 15), command=partial(SpellUsedButton, (RowCounter + 1)))
+    if int(SpellsKnown(RowCounter+1)) > 1 and int(SpellsLeft(RowCounter+1)) > 0:
+        button.config(text="Use Level "+str(RowCounter+1) +
+                           " Spell", font=(BaseFont, 15), command=partial(SpellUsedButton, (RowCounter + 1)))
         button.grid(column=1, row=RowCounter + 2, pady=5, padx=(4, 20))
     else:
-        button.config(text="Use Level "+str(RowCounter+1)+" Spell", font=(BaseFont, 15), state='disabled', command=partial(SpellUsedButton, (RowCounter + 1)))
+        button.config(text="Use Level "+str(RowCounter+1) + " Spell",
+                      font=(BaseFont, 15), state='disabled', command=partial(SpellUsedButton, (RowCounter + 1)))
         button.grid(column=1, row=RowCounter + 2, pady=5, padx=(4, 20))
     RowCounter += 1
 
