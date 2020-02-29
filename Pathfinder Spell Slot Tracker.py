@@ -21,6 +21,23 @@ TitleFrame = Frame(SpellSlots, bg=Background)
 TitleFrame.grid(columnspan=2, pady=(5, 5))
 
 
+# ini.get Functions
+def GetCharacterName():
+    return SpellTracker.get('Main', 'CharacterName')
+
+
+def SpellsKnown(Lvl):
+    return int(SpellTracker.get('Level ' + Lvl, 'Spells Known'))
+
+
+def SpellsLeft(Lvl):
+    return int(SpellTracker.get('Level ' + Lvl, 'Spells Left'))
+
+
+def SpellsPerDay(Lvl):
+    return int(SpellTracker.get('Level ' + Lvl, 'Spells Per Day'))
+
+
 # Use Spell Functions
 def WriteToSpellTracker():
     with open('SpellSlots.ini', 'w') as configfile:
@@ -28,7 +45,7 @@ def WriteToSpellTracker():
 
 
 Title = Label(TitleFrame, text="Spell Slot Counter", font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2, pady=(5, 5))
-CharacterName = Label(TitleFrame, text="for " + str(SpellTracker.get('Main', 'CharacterName')), font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2)
+CharacterName = Label(TitleFrame, text="for " + str(GetCharacterName()), font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2)
 
 # Spell Level Info and Buttons
 SpellInfoList = []
@@ -67,7 +84,7 @@ def ResetSlots():
 RowCounter = 0
 # Spell Level Tkinter Labels
 for lbl in SpellInfoList:
-    if int(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Known')) > 0 and int(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Left')) > 0:
+    if SpellsKnown(RowCounter+1) > 0 and SpellsLeft(RowCounter+1) > 0:
         lbl.config(text="Level " + str(RowCounter+1) + " - " + str(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Left')) + " Spells left of " + str(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'spells per day')), font=(BaseFont, 15), bg=Background)
         lbl.grid(column=0, row=RowCounter + 2, padx=(20, 10))
     elif int(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Known')) > 0 and int(SpellTracker.get('Level ' + str(RowCounter+1) + ' Spells', 'Spells Left')) < 1:
