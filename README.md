@@ -1,6 +1,8 @@
 # Spell Slot Tracker
 My Pathfinder Spell Slot Tracker for Spontaneous Casters.
 
+![Image of Spell Counter](https://i.imgur.com/P8XSlzF.png)
+
 ## Why?
 I created this to learn Tkinter and configparser.
 I actually have a use for it with my pathfinder Roll20 games as well. It saves to the .ini after every update which should not be often.
