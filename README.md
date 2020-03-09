@@ -19,7 +19,7 @@ Make sure all the files are in the same folder otherwise it will not work. That 
 Next fill out the .ini with your character information to its current state in order to make the interface set perfectly for you.
 
 
-```
+```.ini
 [Main]
 charactername = Dain Olaren
 
