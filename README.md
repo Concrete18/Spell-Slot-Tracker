@@ -24,9 +24,9 @@ Next fill out the .ini with your character information to its current state in o
 charactername = Dain Olaren
 
 [Level 1 Spells]
-spells per day = 8
-spells left = 4
-spells known = 6
+spells_per_day = 8
+spells_left = 4
+spells_known = 6
 ```
 
 Once the .ini is filled out, proceed to click the Use Spell buttons for the spell level you just used and click the Rest - Reset when you want everything to reset to your configured Spells per day per spell level as if after a rest..
