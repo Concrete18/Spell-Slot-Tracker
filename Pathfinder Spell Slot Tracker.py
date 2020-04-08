@@ -1,4 +1,4 @@
-from tkinter import Tk, Button, Label, Frame
+from tkinter import Tk, Button, Label, Frame, messagebox
 from functools import partial
 import configparser
 
@@ -28,15 +28,15 @@ def GetCharacterName():
 
 
 def SpellsKnown(Lvl):
-    return int(SpellTracker.get('Level ' + str(Lvl) + ' Spells', 'Spells Known'))
+    return int(SpellTracker.get(f'Level {str(Lvl)} Spells', 'Spells Known'))
 
 
 def SpellsLeft(Lvl):
-    return int(SpellTracker.get('Level ' + str(Lvl) + ' Spells', 'Spells Left'))
+    return int(SpellTracker.get(f'Level {str(Lvl)} Spells', 'Spells Left'))
 
 
 def SpellsPerDay(Lvl):
-    return int(SpellTracker.get('Level ' + str(Lvl) + ' Spells', 'Spells Per Day'))
+    return int(SpellTracker.get(f'Level {str(Lvl)} Spells', 'Spells Per Day'))
 
 
 # Use Spell Functions
@@ -48,7 +48,7 @@ def WriteToSpellTracker():
 Title = Label(
     TitleFrame, text="Spell Slot Counter", font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2, pady=(5, 5))
 CharacterName = Label(
-    TitleFrame, text="for " + str(GetCharacterName()), font=(BoldBaseFont, 20),
+    TitleFrame, text=f"for {str(GetCharacterName())}", font=(BoldBaseFont, 20),
     fg=FontColor, bg=Background).grid(columnspan=2)
 
 # Spell Level Info and Buttons
@@ -61,45 +61,48 @@ for x in range(1, 10):
 
 def SpellUsedButton(SlotNumber):
     if int(SpellsLeft(SlotNumber)) > 1:
-        SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', str(SpellsLeft(SlotNumber)-1))
-        SpellInfoList[SlotNumber - 1].config(text="Level " + str(SlotNumber) + " - " + str(SpellsLeft(SlotNumber))
-                                                  + " Spells left of " + str(SpellsPerDay(SlotNumber)))
+        SpellTracker.set(f'Level {str(SlotNumber)} Spells', 'Spells Left', str(SpellsLeft(SlotNumber)-1))
+        SpellInfoList[SlotNumber - 1].config(text=f"Level {str(SlotNumber)} - {str(SpellsLeft(SlotNumber))} "
+                                                  f"Spells left of {str(SpellsPerDay(SlotNumber))}")
         WriteToSpellTracker()
         print('1 Spell Used')
     else:
-        SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', '0')
+        SpellTracker.set(f'Level {str(SlotNumber)} Spells', 'Spells Left', '0')
         WriteToSpellTracker()
-        SpellInfoList[SlotNumber - 1].config(text='Level ' + str(SlotNumber) + ' - No Slots left      ')
+        SpellInfoList[SlotNumber - 1].config(text=f'Level {str(SlotNumber)} - No Slots left       ')
         SpellButtonList[SlotNumber - 1].config(state='disabled')
         print('Spell Level Spent')
 
 
 def ResetSlots():
-    for SpellLevel in range(1, 10):
-        SpellTracker.set('Level ' + str(SpellLevel) + ' Spells', 'Spells Left', str(SpellsPerDay(SpellLevel)))
-        WriteToSpellTracker()
-        if int(SpellsKnown(SpellLevel)) > 0:
-            SpellInfoList[SpellLevel-1].config(
-                text="Level " + str(SpellLevel) + " - " + str(SpellsLeft(SpellLevel)) + " Spells left of "
-                     + str(SpellsPerDay(SpellLevel)))
-            SpellButtonList[SpellLevel-1].config(state='normal')
-            print('Level ' + str(SpellLevel) + ' Slot Reset')
-        else:
-            pass
+    response = messagebox.askyesno(title='Long Rest - Reset Slots', message='Are you sure that you want to reset?')
+    if response:
+        for SpellLevel in range(1, 10):
+            SpellTracker.set(f'Level {str(SpellLevel)} Spells', 'Spells Left', str(SpellsPerDay(SpellLevel)))
+            WriteToSpellTracker()
+            if int(SpellsKnown(SpellLevel)) > 0:
+                SpellInfoList[SpellLevel-1].config(text=f"Level {str(SpellLevel)} - {str(SpellsLeft(SpellLevel))} "
+                                                        f"Spells left of {str(SpellsPerDay(SpellLevel))}")
+                SpellButtonList[SpellLevel-1].config(state='normal')
+                print(f'Level {str(SpellLevel)} Slot Reset')
+            else:
+                pass
+    else:
+        pass
 
 
 RowCounter = 0
 # Spell Level Tkinter Labels
 for lbl in SpellInfoList:
     if SpellsKnown(RowCounter+1) > 0 and SpellsLeft(RowCounter+1) > 0:
-        lbl.config(text="Level " + str(RowCounter+1) + " - " + str(SpellsLeft(RowCounter+1)) + " Spells left of " +
-                        str(SpellsPerDay(RowCounter+1)), font=(BaseFont, 15), bg=Background)
+        lbl.config(text=f"Level {str(RowCounter+1)} - {str(SpellsLeft(RowCounter+1))} "
+                        f"Spells left of {str(SpellsPerDay(RowCounter+1))}", font=(BaseFont, 15), bg=Background)
         lbl.grid(column=0, row=RowCounter + 2, padx=(20, 10))
     elif int(SpellsKnown(RowCounter+1)) > 0 and int(SpellsLeft(RowCounter+1)) < 1:
-        lbl.config(text='Level ' + str(RowCounter+1) + ' - No Slots left      ')
+        lbl.config(text=f'Level {str(RowCounter+1)} - No Slots left      ')
 
     else:
-        lbl.config(text="Level " + str(RowCounter+1) + " - No Spells Known", font=(BaseFont, 15), bg=Background)
+        lbl.config(text=f"Level {str(RowCounter+1)} - No Spells Known", font=(BaseFont, 15), bg=Background)
         lbl.grid(column=0, row=RowCounter + 2, padx=(20, 10))
     RowCounter += 1
 
@@ -108,11 +111,11 @@ RowCounter = 0
 # Spell Level Tkinter Buttons for using Spells
 for button in SpellButtonList:
     if int(SpellsKnown(RowCounter+1)) > 1 and int(SpellsLeft(RowCounter+1)) > 0:
-        button.config(text="Use Level "+str(RowCounter+1) +
-                           " Spell", font=(BaseFont, 15), command=partial(SpellUsedButton, (RowCounter + 1)))
+        button.config(text=f"Use Level {str(RowCounter+1)} Spell", font=(BaseFont, 15),
+                      command=partial(SpellUsedButton, (RowCounter + 1)))
         button.grid(column=1, row=RowCounter + 2, pady=5, padx=(4, 20))
     else:
-        button.config(text="Use Level "+str(RowCounter+1) + " Spell",
+        button.config(text=f"Use Level {str(RowCounter+1)} Spell",
                       font=(BaseFont, 15), state='disabled', command=partial(SpellUsedButton, (RowCounter + 1)))
         button.grid(column=1, row=RowCounter + 2, pady=5, padx=(4, 20))
     RowCounter += 1
