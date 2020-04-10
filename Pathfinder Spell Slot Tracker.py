@@ -1,9 +1,9 @@
-from tkinter import Tk, Button, Label, Frame, messagebox
+from tkinter import Tk, Button, Label, Frame, messagebox, OptionMenu, StringVar
+from tkinter import ttk
 from functools import partial
 import configparser
+import os
 
-SpellTracker = configparser.ConfigParser()
-SpellTracker.read('SpellSlots.ini')
 
 # Defaults for Background and fonts
 Background = 'LightSteelBlue1'
@@ -14,12 +14,24 @@ FontColor = "Black"
 # Start of Tkinter interface
 SpellSlots = Tk()
 SpellSlots.title("Spell Slot Counter")
-SpellSlots.geometry("464x605")
+SpellSlots.geometry("464x638")
 SpellSlots.iconbitmap('Fireball Icon.ico')
 SpellSlots.configure(bg=Background)
+SpellSlots.resizable()
 
 TitleFrame = Frame(SpellSlots, bg=Background)
 TitleFrame.grid(columnspan=2, pady=(5, 5))
+
+SaveList = []
+
+for File in os.listdir(f'{os.getcwd()}/Saves'):
+    if File.endswith('.ini'):
+        print(f'{File} found and seen as save file.')
+        SaveList.append(File)
+print(SaveList)
+
+SpellTracker = configparser.ConfigParser()
+SpellTracker.read(f'{os.getcwd()}/Saves/Spells Slots - Template.ini')
 
 
 # ini.get Functions
@@ -41,15 +53,36 @@ def SpellsPerDay(Lvl):
 
 # Use Spell Functions
 def WriteToSpellTracker():
-    with open('SpellSlots.ini', 'w') as configfile:
+    with open('Saves/Dain Olaren - SpellSlots.ini', 'w') as configfile:
         SpellTracker.write(configfile)
 
 
-Title = Label(
-    TitleFrame, text="Spell Slot Counter", font=(BoldBaseFont, 20), bg=Background).grid(columnspan=2, pady=(5, 5))
-CharacterName = Label(
-    TitleFrame, text=f"for {str(GetCharacterName())}", font=(BoldBaseFont, 20),
-    fg=FontColor, bg=Background).grid(columnspan=2)
+# .ini Selection
+def ConfirmSave(var):
+    SetSave = SaveSelector.get()
+    SpellTracker.read(f'{os.getcwd()}/Saves/{ConfirmSave(ScriptTitle)}')
+    var.config(text=f"Spell Slot Counter\nfor {str(GetCharacterName())}")
+    print(SetSave)
+    return SetSave
+
+
+# Save Selector
+SelectedSave = StringVar()
+
+SaveSelector = ttk.Combobox(TitleFrame, values=SaveList)
+SaveSelector.grid(column=0, row=1)
+
+ScriptTitle = Label(TitleFrame, text=f"Spell Slot Counter\nChoose your Save", font=(BoldBaseFont, 20), fg=FontColor, bg=Background)
+ScriptTitle.grid(columnspan=2, row=0)
+
+for File in os.listdir(f'{os.getcwd()}/Saves'):
+    if File.endswith('.ini'):
+        print(f'{File} found and seen as save file.')
+        SaveList.append(File)
+print(SaveList)
+
+SaveConButton = Button(TitleFrame, text='Confirm Save', command=partial(ConfirmSave, ScriptTitle))
+SaveConButton.grid(column=1, row=1)
 
 # Spell Level Info and Buttons
 SpellInfoList = []
