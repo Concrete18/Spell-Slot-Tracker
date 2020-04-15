@@ -15,7 +15,7 @@ def create_window(Save):
     Debug = f'{os.getcwd()}/Saves/Dain Olaren - SpellSlots.ini'
     SpellTracker = configparser.ConfigParser()
     SpellTracker.read(Debug)
-    print(Save)
+    print(Save.get())
 
     # Start of Tkinter interface
     SpellSlots = Toplevel(Prompt)
@@ -125,12 +125,13 @@ Prompt.title("Spell Slot Counter")
 
 PromptTitle = Label(text="Spell Slot Counter\nSave Selector", font=(BoldBaseFont, 15)).grid(columnspan=2, pady=(5, 5))
 
-SelectedSave = StringVar()
+#SelectedSave = StringVar()
 
 SaveSelector = ttk.Combobox(Prompt, values=SaveList)
 SaveSelector.grid(column=0, row=1, pady=10, padx=10)
 
-SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SelectedSave.get))
+#SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SaveSelector.get))
+SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SaveSelector))
 SaveConButton.grid(column=1, row=1, pady=10, padx=10)
 
 OpenSaveFolder = Button(Prompt, text='Open Save Folder')
