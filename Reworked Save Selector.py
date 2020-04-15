@@ -12,10 +12,8 @@ FontColor = "Black"
 
 
 def create_window(Save):
-    Debug = f'{os.getcwd()}/Saves/Dain Olaren - SpellSlots.ini'
     SpellTracker = configparser.ConfigParser()
-    SpellTracker.read(Debug)
-    print(Save.get())
+    SpellTracker.read(f'Saves/{Save.get()}')
 
     # Start of Tkinter interface
     SpellSlots = Toplevel(Prompt)
@@ -40,9 +38,10 @@ def create_window(Save):
     def SpellsPerDay(Lvl):
         return int(SpellTracker.get(f'Level {str(Lvl)} Spells', 'Spells Per Day'))
 
+    # Todo Fix write function to current save.
     # Use Spell Functions
-    def WriteToSpellTracker(SetSave):
-        with open(f'{SetSave}', 'w') as configfile:
+    def WriteToSpellTracker(SaveName):
+        with open(SaveName, 'w') as configfile:
             SpellTracker.write(configfile)
 
     Title = Label(TitleFrame, text=f"Spell Slot Counter\nfor {str(GetCharacterName())}", font=(BoldBaseFont, 20), fg=FontColor, bg=Background)
@@ -60,11 +59,11 @@ def create_window(Save):
             SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', str(SpellsLeft(SlotNumber)-1))
             SpellInfoList[SlotNumber - 1].config(text="Level " + str(SlotNumber) + " - " + str(SpellsLeft(SlotNumber))
                                                       + " Spells left of " + str(SpellsPerDay(SlotNumber)))
-            WriteToSpellTracker(f'{SetSave}')
+            WriteToSpellTracker(SetSave.get())
             print('1 Spell Used')
         else:
             SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', '0')
-            WriteToSpellTracker(f'{SetSave}')
+            WriteToSpellTracker(SetSave.get())
             SpellInfoList[SlotNumber - 1].config(text='Level ' + str(SlotNumber) + ' - No Slots left      ')
             SpellButtonList[SlotNumber - 1].config(state='disabled')
             print('Spell Level Spent')
@@ -72,7 +71,7 @@ def create_window(Save):
     def ResetSlots(SetSave):
         for SpellLevel in range(1, 10):
             SpellTracker.set('Level ' + str(SpellLevel) + ' Spells', 'Spells Left', str(SpellsPerDay(SpellLevel)))
-            WriteToSpellTracker(f'{SetSave}')
+            WriteToSpellTracker(SetSave.get())
             if int(SpellsKnown(SpellLevel)) > 0:
                 SpellInfoList[SpellLevel-1].config(
                     text="Level " + str(SpellLevel) + " - " + str(SpellsLeft(SpellLevel)) + " Spells left of "
@@ -126,15 +125,13 @@ Prompt.iconbitmap('Fireball Icon.ico')
 
 PromptTitle = Label(text="Spell Slot Counter\nSave Selector", font=(BoldBaseFont, 15)).grid(columnspan=2, pady=(5, 5))
 
-#SelectedSave = StringVar()
-
 SaveSelector = ttk.Combobox(Prompt, values=SaveList)
 SaveSelector.grid(column=0, row=1, pady=10, padx=10)
 
-#SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SaveSelector.get))
 SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SaveSelector))
 SaveConButton.grid(column=1, row=1, pady=10, padx=10)
 
+# Todo Add function to open save file location.
 OpenSaveFolder = Button(Prompt, text='Open Save Folder')
 OpenSaveFolder.grid(columnspan=2, row=2, pady=10, padx=10)
 
