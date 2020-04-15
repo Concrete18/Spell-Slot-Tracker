@@ -122,6 +122,7 @@ for File in os.listdir(f'{os.getcwd()}/Saves'):
 
 Prompt = Tk()
 Prompt.title("Spell Slot Counter")
+Prompt.iconbitmap('Fireball Icon.ico')
 
 PromptTitle = Label(text="Spell Slot Counter\nSave Selector", font=(BoldBaseFont, 15)).grid(columnspan=2, pady=(5, 5))
 
@@ -135,12 +136,5 @@ SaveConButton.grid(column=1, row=1, pady=10, padx=10)
 
 OpenSaveFolder = Button(Prompt, text='Open Save Folder')
 OpenSaveFolder.grid(columnspan=2, row=2, pady=10, padx=10)
-
-
-def ConfirmSave(var):
-    SetSave = SaveSelector.get()
-    print(SetSave)
-    return SetSave
-
 
 Prompt.mainloop()
