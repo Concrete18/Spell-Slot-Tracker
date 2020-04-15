@@ -22,16 +22,11 @@ SpellSlots.resizable()
 TitleFrame = Frame(SpellSlots, bg=Background)
 TitleFrame.grid(columnspan=2, pady=(5, 5))
 
-SaveList = []
-
-for File in os.listdir(f'{os.getcwd()}/Saves'):
-    if File.endswith('.ini'):
-        print(f'{File} found and seen as save file.')
-        SaveList.append(File)
-print(SaveList)
-
 SpellTracker = configparser.ConfigParser()
-SpellTracker.read(f'{os.getcwd()}/Saves/Spells Slots - Template.ini')
+
+FirstRun = 1
+SaveList = []
+SetSave = None
 
 
 # ini.get Functions
@@ -51,14 +46,42 @@ def SpellsPerDay(Lvl):
     return int(SpellTracker.get(f'Level {str(Lvl)} Spells', 'Spells Per Day'))
 
 
+class SaveSlot:
+    def __init__(self, CharName, FileName, FileLoc):
+        self.CharName = CharName
+        self.FileName = FileName
+        self.FileLoc = FileLoc
+
+    def UpdateInterface(self, Save):
+        with open('example.cfg', 'wb') as configfile:
+            SpellTracker.read(f'{os.getcwd()}/{File}')
+            ScriptTitle.config(text=f"Spell Slot Counter\nfor {str(GetCharacterName())}")
+
+
+for File in os.listdir(f'{os.getcwd()}/Saves'):
+    if File.endswith('.ini'):
+        with open('example.cfg', 'wb') as configfile:
+            SpellTracker.read(f'{os.getcwd()}/{File}')
+            CharName = GetCharacterName()
+            FileName = File
+            FileLoc = f'{os.getcwd()}/Saves/{File}'
+            print(CharName)
+            print(FileName)
+            print(FileLoc)
+
+
+# SpellTracker.read(f'{os.getcwd()}/Saves/Spells Slots - Template.ini')
+
+
 # Use Spell Functions
-def WriteToSpellTracker():
-    with open('Saves/Dain Olaren - SpellSlots.ini', 'w') as configfile:
+def WriteToSpellTracker(SaveLocation):
+    with open(SaveLocation, 'w') as configfile:
         SpellTracker.write(configfile)
 
 
 # .ini Selection
 def ConfirmSave(var):
+    global SetSave
     SetSave = SaveSelector.get()
     SpellTracker.read(f'{os.getcwd()}/Saves/{ConfirmSave(ScriptTitle)}')
     var.config(text=f"Spell Slot Counter\nfor {str(GetCharacterName())}")
@@ -97,11 +120,11 @@ def SpellUsedButton(SlotNumber):
         SpellTracker.set(f'Level {str(SlotNumber)} Spells', 'Spells Left', str(SpellsLeft(SlotNumber)-1))
         SpellInfoList[SlotNumber - 1].config(text=f"Level {str(SlotNumber)} - {str(SpellsLeft(SlotNumber))} "
                                                   f"Spells left of {str(SpellsPerDay(SlotNumber))}")
-        WriteToSpellTracker()
+        WriteToSpellTracker(SetSave)
         print('1 Spell Used')
     else:
         SpellTracker.set(f'Level {str(SlotNumber)} Spells', 'Spells Left', '0')
-        WriteToSpellTracker()
+        WriteToSpellTracker(SetSave)
         SpellInfoList[SlotNumber - 1].config(text=f'Level {str(SlotNumber)} - No Slots left       ')
         SpellButtonList[SlotNumber - 1].config(state='disabled')
         print('Spell Level Spent')
@@ -112,7 +135,7 @@ def ResetSlots():
     if response:
         for SpellLevel in range(1, 10):
             SpellTracker.set(f'Level {str(SpellLevel)} Spells', 'Spells Left', str(SpellsPerDay(SpellLevel)))
-            WriteToSpellTracker()
+            WriteToSpellTracker(SetSave)
             if int(SpellsKnown(SpellLevel)) > 0:
                 SpellInfoList[SpellLevel-1].config(text=f"Level {str(SpellLevel)} - {str(SpellsLeft(SpellLevel))} "
                                                         f"Spells left of {str(SpellsPerDay(SpellLevel))}")
