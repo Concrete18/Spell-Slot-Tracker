@@ -8,6 +8,7 @@ import configparser
 Background = 'LightSteelBlue1'
 BoldBaseFont = "Arial Bold"
 BaseFont = "Arial"
+FontColor = "Black"
 
 
 def create_window(Save):
@@ -41,10 +42,10 @@ def create_window(Save):
 
     # Use Spell Functions
     def WriteToSpellTracker(SetSave):
-        with open(str(SetSave), 'w') as configfile:
+        with open(f'{SetSave}', 'w') as configfile:
             SpellTracker.write(configfile)
 
-    Title = Label(text=f"Spell Slot Counter\nfor {str(GetCharacterName())}")
+    Title = Label(TitleFrame, text=f"Spell Slot Counter\nfor {str(GetCharacterName())}", font=(BoldBaseFont, 20), fg=FontColor, bg=Background)
     Title.grid(column=0, row=0)
 
     # Spell Level Info and Buttons
@@ -59,11 +60,11 @@ def create_window(Save):
             SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', str(SpellsLeft(SlotNumber)-1))
             SpellInfoList[SlotNumber - 1].config(text="Level " + str(SlotNumber) + " - " + str(SpellsLeft(SlotNumber))
                                                       + " Spells left of " + str(SpellsPerDay(SlotNumber)))
-            WriteToSpellTracker(SetSave)
+            WriteToSpellTracker(f'{SetSave}')
             print('1 Spell Used')
         else:
             SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', '0')
-            WriteToSpellTracker(SetSave)
+            WriteToSpellTracker(f'{SetSave}')
             SpellInfoList[SlotNumber - 1].config(text='Level ' + str(SlotNumber) + ' - No Slots left      ')
             SpellButtonList[SlotNumber - 1].config(state='disabled')
             print('Spell Level Spent')
@@ -71,7 +72,7 @@ def create_window(Save):
     def ResetSlots(SetSave):
         for SpellLevel in range(1, 10):
             SpellTracker.set('Level ' + str(SpellLevel) + ' Spells', 'Spells Left', str(SpellsPerDay(SpellLevel)))
-            WriteToSpellTracker(SetSave)
+            WriteToSpellTracker(f'{SetSave}')
             if int(SpellsKnown(SpellLevel)) > 0:
                 SpellInfoList[SpellLevel-1].config(
                     text="Level " + str(SpellLevel) + " - " + str(SpellsLeft(SpellLevel)) + " Spells left of "
