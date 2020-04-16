@@ -14,9 +14,10 @@ This saves per action to a .ini which stores info such as character name, spells
 
 Install Python (I have only used Version 3.8 and 2 or lower is not going to work)
 
-Make sure all the files are in the same folder otherwise it will not work. That includes the .ico, .ini and .py file.
+Make sure all the files are in the same main folder otherwise it will not work. That includes the .ico, .ini and .py files.
 
 Next fill out the .ini with your character information to its current state in order to make the interface set perfectly for you.
+These are located in Saves folder. You can have multiple characters in that folder. A Save picker opens first that allows you to pick which you load.
 
 
 ```.ini
