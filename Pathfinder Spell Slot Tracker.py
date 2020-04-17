@@ -1,9 +1,12 @@
 from tkinter import Tk, Button, Label, Frame
 from functools import partial
 from tkinter import ttk
+import shutil
 import configparser
 import subprocess
 import os
+
+CWD = os.getcwd()
 
 # Defaults for Background and fonts
 Background = 'LightSteelBlue1'
@@ -102,7 +105,7 @@ def create_window(Save):
     RowCounter = 0
     # Spell Level Tkinter Buttons for using Spells
     for button in SpellButtonList:
-        if int(SpellsKnown(RowCounter+1)) > 1 and int(SpellsLeft(RowCounter+1)) > 0:
+        if int(SpellsKnown(RowCounter+1)) > 0 and int(SpellsLeft(RowCounter+1)) > 0:
             button.config(text="Use Level "+str(RowCounter+1) +
                                " Spell", font=(BaseFont, 15),
                           command=partial(SpellUsedButton, (RowCounter + 1), CurrentSave))
@@ -120,11 +123,35 @@ def create_window(Save):
     SpellSlots.mainloop()
 
 
-SaveList = []
+def OpenSaveLocation():
+    subprocess.Popen(f'explorer "{CWD}\\Saves\\"')
 
-for File in os.listdir(f'{os.getcwd()}/Saves'):
-    if File.endswith('.ini'):
-        SaveList.append(File)
+
+def CreateTemplateSave():
+    print('Creating Template Save.')
+    TemplateLoc = f'{CWD}\\Save Template.ini\\'
+    SaveLoc = f'{CWD}\\Saves'
+    try:
+        shutil.copyfile(TemplateLoc, SaveLoc)
+    except FileNotFoundError and PermissionError:
+        print('No Template found.')
+
+
+def CreateSaveList(var):
+    for File in os.listdir(f'{CWD}/Saves'):
+        if File.endswith('.ini'):
+            print(File)
+            if File == 'Save Template.ini':
+                pass
+            else:
+                var.append(File)
+    if len(var) == 0:
+        var = ['No Saves Found']
+        OpenSaveLocation()
+
+
+SaveList = []
+CreateSaveList(SaveList)
 
 Prompt = Tk()
 Prompt.title("Spell Slot Counter")
@@ -141,11 +168,6 @@ SaveSelector.current(0)
 
 SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SaveSelector))
 SaveConButton.grid(column=1, row=1, pady=10, padx=10)
-
-
-def OpenSaveLocation():
-    subprocess.Popen(f'explorer /select, "{os.getcwd()}"')
-    print(f'{os.getcwd()}/Saves')
 
 
 # Todo Add function to open save file location.
