@@ -127,16 +127,6 @@ def OpenSaveLocation():
     subprocess.Popen(f'explorer "{CWD}\\Saves\\"')
 
 
-def CreateTemplateSave():
-    print('Creating Template Save.')
-    TemplateLoc = f'{CWD}\\Save Template.ini\\'
-    SaveLoc = f'{CWD}\\Saves'
-    try:
-        shutil.copyfile(TemplateLoc, SaveLoc)
-    except FileNotFoundError and PermissionError:
-        print('No Template found.')
-
-
 def CreateSaveList(var):
     for File in os.listdir(f'{CWD}/Saves'):
         if File.endswith('.ini'):
@@ -147,7 +137,9 @@ def CreateSaveList(var):
                 var.append(File)
     if len(var) == 0:
         var = ['No Saves Found']
+        print('No Saves Found.')
         OpenSaveLocation()
+        return var
 
 
 SaveList = []
