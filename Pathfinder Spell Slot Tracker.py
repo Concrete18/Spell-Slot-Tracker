@@ -1,12 +1,17 @@
 from tkinter import Tk, Button, Label, Frame
 from functools import partial
 from tkinter import ttk
-import shutil
+import logging as lg
 import configparser
 import subprocess
 import os
 
 CWD = os.getcwd()
+FORMAT = '%(asctime)-15s %(message)s'
+
+filename = f'{CWD}\\Spell_Tracker.log'
+lg.basicConfig(filename=filename, level=lg.INFO, format=FORMAT)
+spell_log = lg.getLogger()
 
 # Defaults for Background and fonts
 Background = 'LightSteelBlue1'
@@ -66,16 +71,18 @@ def create_window(Save):
             SpellInfoList[SlotNumber - 1].config(text="Level " + str(SlotNumber) + " - " + str(SpellsLeft(SlotNumber))
                                                       + " Spells left of " + str(SpellsPerDay(SlotNumber)))
             WriteToSpellTracker(f'Saves/{SetName}')
-            print('1 Spell Used')
         else:
             SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', '0')
             WriteToSpellTracker(f'Saves/{SetName}')
             SpellInfoList[SlotNumber - 1].config(text='Level ' + str(SlotNumber) + ' - No Slots left      ')
             SpellButtonList[SlotNumber - 1].config(state='disabled')
-            print('Spell Level Spent')
+        lg.info(f'Level {SlotNumber} spell used.')
 
     def ResetSlots(SetSave):
+        lg.info(f'Spell slots reset for {SetSave}.')
         for SpellLevel in range(1, 10):
+            if SpellsKnown(SpellLevel) > 0:
+                lg.info(f'Previous Spells for Level {SpellLevel} - {SpellsLeft(SpellLevel)}.')
             SpellTracker.set('Level ' + str(SpellLevel) + ' Spells', 'Spells Left', str(SpellsPerDay(SpellLevel)))
             WriteToSpellTracker(f'Saves/{SetSave}')
             if int(SpellsKnown(SpellLevel)) > 0:
