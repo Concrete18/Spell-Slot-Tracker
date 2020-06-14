@@ -8,9 +8,8 @@ import os
 
 CWD = os.getcwd()
 FORMAT = '%(asctime)-15s %(message)s'
-
 filename = f'{CWD}\\Spell_Tracker.log'
-lg.basicConfig(filename=filename, level=lg.INFO, format=FORMAT)
+lg.basicConfig(filename=filename, level=lg.INFO, format=FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p')
 spell_log = lg.getLogger()
 
 # Defaults for Background and fonts
@@ -54,8 +53,7 @@ def create_window(Save):
         with open(WriteToName, 'w') as configfile:
             SpellTracker.write(configfile)
 
-    Title = Label(TitleFrame, text=f"Spell Slot Counter\nfor {str(GetCharacterName())}",
-                  font=(BoldBaseFont, 20), fg=FontColor, bg=Background)
+    Title = Label(TitleFrame, text=f"Spell Slot Counter\nfor {str(GetCharacterName())}", font=(BoldBaseFont, 20), fg=FontColor, bg=Background)
     Title.grid(column=0, row=0)
 
     # Spell Level Info and Buttons
