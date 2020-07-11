@@ -4,6 +4,7 @@ from tkinter import ttk
 import logging as lg
 import configparser
 import subprocess
+import sys
 import os
 
 CWD = os.getcwd()
@@ -19,13 +20,17 @@ BaseFont = "Arial"
 FontColor = "Black"
 
 
-def create_window(Save):
-    CurrentSave = Save.get()
+def create_window(Save, skip_select=0):
+    if skip_select == 1:
+        CurrentSave = Save
+        print(CurrentSave)
+    else:
+        CurrentSave = Save.get()
+        Prompt.destroy()
     SpellTracker = configparser.ConfigParser()
-    SpellTracker.read(f'Saves/{Save.get()}')
+    SpellTracker.read(f'Saves/{CurrentSave}')
 
     # Start of Tkinter interface
-    Prompt.destroy()
     SpellSlots = Tk()
     SpellSlots.title("Spell Slot Counter")
     SpellSlots.geometry("464x605")
@@ -126,6 +131,7 @@ def create_window(Save):
                       command=partial(ResetSlots, CurrentSave), font=(BaseFont, 14))
     LongRest.grid(columnspan=2, row=11, pady=10)
     SpellSlots.mainloop()
+    sys.exit()
 
 
 def OpenSaveLocation():
@@ -145,6 +151,9 @@ def CreateSaveList(var):
         print('No Saves Found.')
         OpenSaveLocation()
         return var
+    if len(var) == 1:
+        print
+        create_window(var[0], 1)
 
 
 SaveList = []
@@ -163,7 +172,7 @@ SaveSelector.grid(column=0, row=1, pady=10, padx=10)
 SaveSelector.current(0)
 
 
-SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SaveSelector))
+SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SaveSelector, 1))
 SaveConButton.grid(column=1, row=1, pady=10, padx=10)
 
 
