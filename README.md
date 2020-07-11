@@ -12,7 +12,7 @@ I actually have a use for it with my pathfinder Roll20 games as well. It saves t
 * Save Selector that will auto choose the single save if no others are there except the Saves\Save Template.ini.
 
 ## Save Method
-This saves per action to a .ini which stores info such as character name, spells per day, spells left for the day and spells known. All that info is used to properly display all information ineractable way.
+This saves per action to a .ini which stores info such as character name, spells per day, spells left for the day and spells known. All that info is used to properly display all information in an interactable way.
 
 ## How to use it?
 
