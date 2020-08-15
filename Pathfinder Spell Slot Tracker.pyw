@@ -45,20 +45,21 @@ def create_window(Save, skip_select=0):
         return SpellTracker.get('Main', 'CharacterName')
 
     def SpellsKnown(Lvl):
-        return int(SpellTracker.get(f'Level {str(Lvl)} Spells', 'Spells Known'))
+        return int(SpellTracker.get(f'Level {Lvl} Spells', 'Spells Known'))
 
     def SpellsLeft(Lvl):
-        return int(SpellTracker.get(f'Level {str(Lvl)} Spells', 'Spells Left'))
+        return int(SpellTracker.get(f'Level {Lvl} Spells', 'Spells Left'))
 
     def SpellsPerDay(Lvl):
-        return int(SpellTracker.get(f'Level {str(Lvl)} Spells', 'Spells Per Day'))
+        return int(SpellTracker.get(f'Level {Lvl} Spells', 'Spells Per Day'))
 
     # Use Spell Functions
     def WriteToSpellTracker(WriteToName):
         with open(WriteToName, 'w') as configfile:
             SpellTracker.write(configfile)
 
-    Title = Label(TitleFrame, text=f"Spell Slot Counter\nfor {str(GetCharacterName())}", font=(BoldBaseFont, 20), fg=FontColor, bg=Background)
+    text = f"Spell Slot Counter\nfor {GetCharacterName()}"
+    Title = Label(TitleFrame, text=text, font=(BoldBaseFont, 20), fg=FontColor, bg=Background)
     Title.grid(column=0, row=0)
 
     # Spell Level Info and Buttons
@@ -69,15 +70,15 @@ def create_window(Save, skip_select=0):
         SpellButtonList.append(Button(SpellSlots))
 
     def SpellUsedButton(SlotNumber, SetName):
-        if int(SpellsLeft(SlotNumber)) > 1:
+        if SpellsLeft(SlotNumber) > 1:
             SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', str(SpellsLeft(SlotNumber)-1))
-            SpellInfoList[SlotNumber - 1].config(text="Level " + str(SlotNumber) + " - " + str(SpellsLeft(SlotNumber))
-                                                      + " Spells left of " + str(SpellsPerDay(SlotNumber)))
+            text = f"Level {SlotNumber} - {SpellsLeft(SlotNumber)} Spells left of {SpellsPerDay(SlotNumber)}"
+            SpellInfoList[SlotNumber - 1].config(text=text)
             WriteToSpellTracker(f'Saves/{SetName}')
         else:
             SpellTracker.set('Level ' + str(SlotNumber) + ' Spells', 'Spells Left', '0')
             WriteToSpellTracker(f'Saves/{SetName}')
-            SpellInfoList[SlotNumber - 1].config(text='Level ' + str(SlotNumber) + ' - No Slots left      ')
+            SpellInfoList[SlotNumber - 1].config(text=f'Level {SlotNumber} - No Slots left      ')
             SpellButtonList[SlotNumber - 1].config(state='disabled')
         lg.info(f'Level {SlotNumber} spell used.')
 
@@ -86,14 +87,13 @@ def create_window(Save, skip_select=0):
         for SpellLevel in range(1, 10):
             if SpellsKnown(SpellLevel) > 0:
                 lg.info(f'Previous Spells for Level {SpellLevel} - {SpellsLeft(SpellLevel)}.')
-            SpellTracker.set('Level ' + str(SpellLevel) + ' Spells', 'Spells Left', str(SpellsPerDay(SpellLevel)))
+            SpellTracker.set(f'Level {SpellLevel}  Spells, Spells Left, {SpellsPerDay(SpellLevel)}')
             WriteToSpellTracker(f'Saves/{SetSave}')
-            if int(SpellsKnown(SpellLevel)) > 0:
-                SpellInfoList[SpellLevel-1].config(
-                    text="Level " + str(SpellLevel) + " - " + str(SpellsLeft(SpellLevel)) + " Spells left of "
-                         + str(SpellsPerDay(SpellLevel)))
+            if SpellsKnown(SpellLevel) > 0:
+                text = f"Level {SpellLevel} - {SpellsLeft(SpellLevel)} Spells left of {SpellsPerDay(SpellLevel)}"
+                SpellInfoList[SpellLevel-1].config(text=text)
                 SpellButtonList[SpellLevel-1].config(state='normal')
-                print('Level ' + str(SpellLevel) + ' Slot Reset')
+                print(f'Level {SpellLevel} Slot Reset')
             else:
                 pass
 
@@ -101,29 +101,28 @@ def create_window(Save, skip_select=0):
     # Spell Level Tkinter Labels
     for lbl in SpellInfoList:
         if SpellsKnown(RowCounter+1) > 0 and SpellsLeft(RowCounter+1) > 0:
-            lbl.config(text="Level " + str(RowCounter+1) + " - " + str(SpellsLeft(RowCounter+1)) + " Spells left of " +
-                            str(SpellsPerDay(RowCounter+1)), font=(BaseFont, 15), bg=Background)
+            text = f"Level {RowCounter+1} - {SpellsLeft(RowCounter+1)} Spells left of {SpellsPerDay(RowCounter+1)}"
+            lbl.config(text=text, font=(BaseFont, 15), bg=Background)
             lbl.grid(column=0, row=RowCounter + 2, padx=(20, 10))
-        elif int(SpellsKnown(RowCounter+1)) > 0 and int(SpellsLeft(RowCounter+1)) < 1:
+        elif SpellsKnown(RowCounter+1) > 0 and SpellsLeft(RowCounter+1) < 1:
             lbl.config(text='Level ' + str(RowCounter+1) + ' - No Slots left      ')
-
         else:
             lbl.config(text="Level " + str(RowCounter+1) + " - No Spells Known", font=(BaseFont, 15), bg=Background)
-            lbl.grid(column=0, row=RowCounter + 2, padx=(20, 10))
+            lbl.grid(column=0, row=RowCounter+2, padx=(20, 10))
         RowCounter += 1
 
     RowCounter = 0
     # Spell Level Tkinter Buttons for using Spells
     for button in SpellButtonList:
-        if int(SpellsKnown(RowCounter+1)) > 0 and int(SpellsLeft(RowCounter+1)) > 0:
-            button.config(text="Use Level "+str(RowCounter+1) +
-                               " Spell", font=(BaseFont, 15),
-                          command=partial(SpellUsedButton, (RowCounter + 1), CurrentSave))
+        if SpellsKnown(RowCounter+1) > 0 and SpellsLeft(RowCounter+1) > 0:
+            text = f"Use Level {str(RowCounter+1)} Spell"
+            button.config(text=text, font=(BaseFont, 15),
+            command=partial(SpellUsedButton, (RowCounter + 1), CurrentSave))
             button.grid(column=1, row=RowCounter + 2, pady=5, padx=(4, 20))
         else:
-            button.config(text="Use Level "+str(RowCounter+1) + " Spell",
-                          font=(BaseFont, 15), state='disabled',
-                          command=partial(SpellUsedButton, (RowCounter + 1), CurrentSave))
+            text = f"Use Level {str(RowCounter+1)} Spell"
+            button.config(text=text, font=(BaseFont, 15), state='disabled',
+            command=partial(SpellUsedButton, (RowCounter + 1), CurrentSave))
             button.grid(column=1, row=RowCounter + 2, pady=5, padx=(4, 20))
         RowCounter += 1
 
@@ -155,29 +154,27 @@ def CreateSaveList(var):
         print
         create_window(var[0], 1)
 
+if __name__ == '__main__':
+    SaveList = []
+    CreateSaveList(SaveList)
 
-SaveList = []
-CreateSaveList(SaveList)
+    Prompt = Tk()
+    Prompt.title("Spell Slot Counter")
+    Prompt.iconbitmap('Fireball Icon.ico')
 
-Prompt = Tk()
-Prompt.title("Spell Slot Counter")
-Prompt.iconbitmap('Fireball Icon.ico')
+    # Todo Update spacing to increase size of combobox.
+    PromptTitle = Label(text="Spell Slot Counter\nSave Selector",
+                        font=(BoldBaseFont, 15)).grid(columnspan=2, pady=(10, 5), padx=90)
 
-# Todo Update spacing to increase size of combobox.
-PromptTitle = Label(text="Spell Slot Counter\nSave Selector",
-                    font=(BoldBaseFont, 15)).grid(columnspan=2, pady=(10, 5), padx=90)
+    SaveSelector = ttk.Combobox(Prompt, values=SaveList)
+    SaveSelector.grid(column=0, row=1, pady=10, padx=10)
+    SaveSelector.current(0)
 
-SaveSelector = ttk.Combobox(Prompt, values=SaveList)
-SaveSelector.grid(column=0, row=1, pady=10, padx=10)
-SaveSelector.current(0)
+    SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SaveSelector, 1))
+    SaveConButton.grid(column=1, row=1, pady=10, padx=10)
 
+    # Todo Add function to open save file location.
+    OpenSaveFolder = Button(Prompt, text='Open Save Folder', command=OpenSaveLocation)
+    OpenSaveFolder.grid(columnspan=2, row=2, pady=10, padx=10)
 
-SaveConButton = Button(Prompt, text='Confirm Save', command=partial(create_window, SaveSelector, 1))
-SaveConButton.grid(column=1, row=1, pady=10, padx=10)
-
-
-# Todo Add function to open save file location.
-OpenSaveFolder = Button(Prompt, text='Open Save Folder', command=OpenSaveLocation)
-OpenSaveFolder.grid(columnspan=2, row=2, pady=10, padx=10)
-
-Prompt.mainloop()
+    Prompt.mainloop()
