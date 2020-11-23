@@ -39,4 +39,6 @@ spells_known = 6
 
 Once the .ini is filled out, proceed to click the Use Spell buttons for the spell level you just used and click the Rest - Reset when you want everything to reset to your configured Spells per day per spell level as if after a rest.
 
-### Thanks to [RobinHorn](https://github.com/rellissc) for the help with some of the methods used.
+### Thanks
+
+[rellissc](https://github.com/rellissc) helped with some of the methods used.
