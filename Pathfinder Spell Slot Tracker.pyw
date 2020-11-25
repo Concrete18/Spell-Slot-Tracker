@@ -1,9 +1,9 @@
 from tkinter import Tk, ttk, Button, Label, LabelFrame
+from functools import partial
 import logging as lg
 import subprocess
 import json
 import os
-from functools import partial
 
 class Startup:
 
@@ -72,35 +72,14 @@ class Tracker:
         with open(self.current_save) as json_file:
             self.data = json.load(json_file)
         self.character_name = self.data['settings']['character_name']
-
-
-    def spells_known(self):
-        '''
-        Returns highest spell level known.
-        '''
-        return self.data['settings']['spell_level_range']
-
-
-    def spells_left(self, level):
-        '''
-        Returns spells left for spell level entered as argument.
-
-        Argument:
-
-        level -- spell level
-        '''
-        return self.data['spells'][f'level_{level}']['spells_left']
-
-
-    def spells_per_day(self, level):
-        '''
-        Returns spells per day for spell level entered as argument.
-
-        Argument:
-
-        level -- spell level
-        '''
-        return self.data['spells'][f'level_{level}']['spells_per_day']
+        self.spells_known = self.data['settings']['spell_level_range']
+        if self.spells_known > 9:
+            self.spells_known = 9
+        # defaul label text
+        self.spells_left_info = 'spells left of'
+        self.no_spells_left_info = '0 spells left of'
+        self.spell_like_left_info = 'uses left of'
+        self.no_spell_like_left_info = '0 uses left of'
 
 
     def write_to_json(self):
@@ -113,15 +92,17 @@ class Tracker:
 
 
     def spell_button_used(self, spell_level):
-        spells_left = self.spells_left(spell_level)
+        spells_left = self.data['spells'][f'level_{spell_level}']['spells_left']
+        spells_per_day = self.data['spells'][f'level_{spell_level}']['spells_per_day']
         if spells_left > 1:
             self.data['spells'][f'level_{spell_level}']['spells_left'] = spells_left - 1
-            text = f"Level {spell_level} - {self.spells_left(spell_level)} Spells left of {self.spells_per_day(spell_level)}"
+            text = f"Level {spell_level} - {spells_left} {self.spells_left_info} {spells_per_day}"
             self.spell_info_list[spell_level-1].config(text=text)
             self.write_to_json()
         else:
             self.data['spells'][f'level_{spell_level}']['spells_left'] = 0
-            self.spell_info_list[spell_level-1].config(text=f'Level {spell_level} - No Slots left      ')
+            text = f'Level {spell_level} - {self.no_spells_left_info} {spells_per_day}'
+            self.spell_info_list[spell_level-1].config(text=text)
             self.spell_button_list[spell_level-1].config(state='disabled')
             self.write_to_json()
         lg.info(f'Level {spell_level} spell used.')
@@ -132,12 +113,12 @@ class Tracker:
         uses_per_day = int(self.data['spell_like'][spell_like]['per_day'])
         if uses_left > 1:
             self.data['spell_like'][spell_like]['uses_left'] = uses_left - 1
-            text = f"{spell_like} - {uses_left-1} uses left of {uses_per_day}"
+            text = f"{spell_like} - {uses_left-1} {self.spell_like_left_info} {uses_per_day}"
             self.spell_like_info_list[index].config(text=text)
             self.write_to_json()
         else:
             self.data['spell_like'][spell_like]['uses_left'] = 0
-            text = f"{spell_like} - No uses left    "
+            text = f"{spell_like} - {self.no_spell_like_left_info} {uses_per_day}"
             self.spell_like_info_list[index].config(text=text)
             self.spell_like_button_list[index].config(state='disabled')
             self.write_to_json()
@@ -149,18 +130,21 @@ class Tracker:
         Resers slots for all known spell levels to the current spells per day for each level.
         '''
         lg.info(f'Spell slots reset for {self.current_save}.')
-        for spell_level in range(1, self.spells_known()+1):
-            spells_per_day = self.spells_per_day(spell_level)
-            lg.info(f'Previous Spells for Level {spell_level} - {self.spells_left(spell_level)}.')
+        # Spells
+        for spell_level in range(1, self.spells_known+1):
+            spells_left = self.data['spells'][f'level_{spell_level}']['spells_left']
+            spells_per_day = self.data['spells'][f'level_{spell_level}']['spells_per_day']
+            lg.info(f'Previous Spells for Level {spell_level} - {spells_left}.')
             self.data['spells'][f'level_{spell_level}']['spells_left'] = spells_per_day
-            text = f"Level {spell_level} - {spells_per_day} Spells left of {spells_per_day}"
+            text = f"Level {spell_level} - {spells_per_day} {self.spells_left_info} {spells_per_day}"
             self.spell_info_list[spell_level-1].config(text=text)
             self.spell_button_list[spell_level-1].config(state='normal')
         index=0
+        # Spell Like Abilities
         for spell_like in self.data['spell_like']:
             uses_per_day = self.data['spell_like'][spell_like]['per_day']
             self.data['spell_like'][spell_like]['uses_left'] = uses_per_day
-            text = f"{spell_like} - {uses_per_day} uses left of {uses_per_day}"
+            text = f"{spell_like} - {uses_per_day} {self.spell_like_left_info} {uses_per_day}"
             self.spell_like_info_list[index].config(text=text)
             self.spell_like_button_list[index].config(state='normal')
             index += 1
@@ -175,7 +159,7 @@ class Tracker:
         SpellSlots = Tk()
         SpellSlots.title("Spell Slot Counter")
         window_width = 370
-        window_height = 215
+        window_height = 500
         width = int((SpellSlots.winfo_screenwidth()-window_width)/2)
         height = int((SpellSlots.winfo_screenheight()-window_height)/2)
         SpellSlots.geometry(f'+{width}+{height}')
@@ -187,7 +171,7 @@ class Tracker:
         Title.grid(column=0, row=0)
 
         SpellFrame = LabelFrame(SpellSlots, text='Spells', font=('Arial Bold', 14))
-        SpellFrame.grid(column=0, row=1, padx=10, pady=(10, 5))
+        SpellFrame.grid(column=0, row=1, padx=40, pady=(10, 5))
 
         # Spell Level Info and Buttons
         self.spell_info_list = []
@@ -197,20 +181,24 @@ class Tracker:
             self.spell_button_list.append(ttk.Button(SpellFrame))
 
         # Spell Level Tkinter Labels
-        for num in range(1, self.spells_known()+1):
-            spells_left = self.spells_left(num)
-            if self.spells_left(num) > 0:
-                text = f"Level {num} - {spells_left} spells left of {self.spells_per_day(num)}"
+        for num in range(1, self.spells_known+1):
+            self.data['spells'][f'level_{num}']['spells_per_day']
+            spells_left = self.data['spells'][f'level_{num}']['spells_left']
+            spells_per_day = self.data['spells'][f'level_{num}']['spells_per_day']
+            if spells_left > 0:
+                text = f"Level {num} - {spells_left} {self.spells_left_info} {spells_per_day}"
                 self.spell_info_list[num-1].config(text=text, font=('Arial', 13))
             else:
-                self.spell_info_list[num-1].config(text=' Level ' + str(num) + ' - no spell slots left')
+                text = f'Level {num} - {self.no_spells_left_info} {spells_per_day}'
+                self.spell_info_list[num-1].config(text=text, font=('Arial', 13))
             self.spell_info_list[num-1].grid(column=0, row=num+1, padx=(20, 10))
 
         # Spell Level Tkinter Buttons for using Spells
-        for num in range(1, self.spells_known()+1):
+        for num in range(1, self.spells_known+1):
+            spells_left = self.data['spells'][f'level_{num}']['spells_left']
             text = f"Use Level {num} Spell"
             button_width = 18
-            if self.spells_left(num) > 0:
+            if spells_left > 0:
                 self.spell_button_list[num-1].config(text=text, width=button_width,
                     command=partial(self.spell_button_used, num))
                 self.spell_button_list[num-1].grid(column=1, row=num+1, pady=5, padx=(4, 20))
@@ -236,10 +224,11 @@ class Tracker:
             uses_left = int(self.data['spell_like'][spell_like]['uses_left'])
             uses_per_day = int(self.data['spell_like'][spell_like]['per_day'])
             if uses_left > 0:
-                text = f"{spell_like} - {uses_left} uses left of {uses_per_day}"
+                text = f"{spell_like} - {uses_left} {self.spell_like_left_info} {uses_per_day}"
                 self.spell_like_info_list[index].config(text=text, font=('Arial', 13))
             else:
-                self.spell_like_info_list[index].config(text=f'{spell_like} - no uses left', font=('Arial', 13))
+                text = f'{spell_like} - {self.no_spell_like_left_info} {uses_per_day}'
+                self.spell_like_info_list[index].config(text=text, font=('Arial', 13))
             self.spell_like_info_list[index].grid(column=0, row=index, padx=(20, 10))
             index += 1
 
