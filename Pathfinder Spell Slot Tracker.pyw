@@ -3,6 +3,7 @@ import logging as lg
 import subprocess
 import json
 import os
+import pprint
 
 
 class Startup:
@@ -71,6 +72,7 @@ class Tracker:
         self.current_save = save_name
         with open(self.current_save) as json_file:
             self.data = json.load(json_file)
+        self.character_name = self.data['settings']['character_name']
         # Defaults for Background and fonts
         self.background = 'white'
         # self.background = 'LightSteelBlue1'
@@ -78,13 +80,6 @@ class Tracker:
         self.base_font = "Arial"
         self.font_color = "Black"
 
-
-    # ini.get Functions
-    def get_character_name(self):
-        '''
-        Returns Character Name.
-        '''
-        return self.data['settings']['character_name']
 
     def spells_known(self):
         '''
@@ -114,7 +109,6 @@ class Tracker:
         return self.data['spells'][f'level_{level}']['spells_per_day']
 
 
-    # Use Spell Functions
     def write_to_json(self):
         '''
         Writes updated json data into save file.
@@ -141,6 +135,9 @@ class Tracker:
 
 
     def reset_slots(self):
+        '''
+        Resers slots for all known spell levels to the current spells per day for each level.
+        '''
         lg.info(f'Spell slots reset for {self.current_save}.')
         for spell_level in range(1, self.spells_known()):
             spells_per_day = self.spells_per_day(spell_level)
@@ -155,7 +152,7 @@ class Tracker:
 
     def create_window(self):
         '''
-        Start of Tkinter interface
+        Creates Tkinter interface
         '''
         SpellSlots = Tk()
         SpellSlots.title("Spell Slot Counter")
@@ -166,8 +163,8 @@ class Tracker:
         TitleFrame = Frame(SpellSlots, bg=self.background)
         TitleFrame.grid(columnspan=2, pady=(5, 5))
 
-        text = f"Spell Slot Counter\nfor {self.get_character_name()}"
-        Title = Label(TitleFrame, text=text, font=(self.bold_base_font, 20), fg=self.font_color, bg=self.background)
+        text = f"Spell Slot Counter\{self.character_name}"
+        Title = Label(TitleFrame, text=text, font=(self.bold_base_font, 15), fg=self.font_color, bg=self.background)
         Title.grid(column=0, row=0)
 
         # Spell Level Info and Buttons
