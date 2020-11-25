@@ -1,0 +1,66 @@
+{
+    "settings":
+    {
+        "character_name": "Insert Name Here",
+        "spell_level_range": 5
+    },
+    "spells":
+    {
+        "level_1":
+        {
+            "spells_per_day": 8,
+            "spells_left": 8
+        },
+        "level_2":
+        {
+            "spells_per_day": 5,
+            "spells_left": 5
+        },
+        "level_3":
+        {
+            "spells_per_day": 3,
+            "spells_left": 3
+        },
+        "level_4":
+        {
+            "spells_per_day": 2,
+            "spells_left": 2
+        },
+        "level_5":
+        {
+            "spells_per_day": 1,
+            "spells_left": 1
+        },
+        "level_6":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_7":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_8":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_9":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        }
+    },
+    "spell_like":
+    {
+        "spell_like_1": {
+            "per_day": 8,
+            "uses_left": 8
+        },
+        "spell_like_2": {
+            "per_day": 2,
+            "uses_left": 2
+        }
+    }
+}

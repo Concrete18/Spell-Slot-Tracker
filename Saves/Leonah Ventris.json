@@ -1,0 +1,63 @@
+{
+    "settings":
+    {
+        "character_name": "Leonah Ventris",
+        "spell_level_range": 1
+    },
+    "spells":
+    {
+        "level_1":
+        {
+            "spells_per_day": 8,
+            "spells_left": 8
+        },
+        "level_2":
+        {
+            "spells_per_day": 7,
+            "spells_left": 7
+        },
+        "level_3":
+        {
+            "spells_per_day": 3,
+            "spells_left": 1
+        },
+        "level_4":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_5":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_6":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_7":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_8":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_9":
+        {
+            "spells_per_day": 0,
+            "spells_left": 0
+        }
+    },
+    "spell_like":
+    {
+        "Summon Monster":
+        {
+            "per_day": 6,
+            "uses_left": 6
+        }
+    }
+}
