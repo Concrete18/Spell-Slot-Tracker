@@ -1,8 +1,9 @@
-from tkinter import Tk, ttk, Button, Label, LabelFrame
+from tkinter import Tk, ttk, Label, LabelFrame, Listbox, END
 from functools import partial
 import logging as lg
 import subprocess
 import json
+import sys
 import os
 
 class Startup:
@@ -10,68 +11,105 @@ class Startup:
 
     def __init__(self):
         self.cwd = os.getcwd()
-        self.save = ''
+        self.profile = ''
 
 
-    def open_save_location(self):
-        subprocess.Popen(f'explorer "{self.cwd}\\Saves\\"')
+    def open_profile_location(self):
+        subprocess.Popen(f'explorer "{self.cwd}\\profiles\\"')
 
 
-    def create_save_list(self):
-        save_list = []
-        for file in os.scandir(f'{self.cwd}/Saves'):
+    def create_profile_list(self):
+        '''
+        Creates a list of the .json files in the profile folder.
+        '''
+        profile_list = []
+        for file in os.scandir(f'{self.cwd}/Profiles'):
             if file.name.endswith('.json'):
-                if file != 'Save Template.json':
-                    save_list.append(file)
-        if len(save_list) == 0:
-            print('No Saves Found')
-            self.open_save_location()
-        elif len(save_list) == 1:
-            return save_list[0]
+                profile_list.append(file.name)
+        if len(profile_list) == 0:
+            print('No profiles found')
+            self.open_profile_location()
         else:
-            return save_list
+            return profile_list
 
 
-    def save_select(self):
-        SaveList = []
-        self.create_save_list(SaveList)
+    def set_profile(self):
+        '''
+        Sets the profile based on the listbox selection.
+        '''
+        self.profile = self.profilelist.get(self.profilelist.curselection())
+        App = Tracker(Selection.profile)
+        self.Prompt.destroy()
+        App.create_window()
 
-        Prompt = Tk()
-        Prompt.title("Spell Slot Counter")
-        Prompt.iconbitmap('Fireball Icon.ico')
+
+    def new_profile(self):
+        '''
+        Creates a new profile.
+        '''
+        pass
+
+
+    def profile_select(self):
+        profileList = self.create_profile_list()
+        print()
+        if len(profileList) == 1:
+            App = Tracker(profileList[0])
+            App.create_window()
+            return
+        self.Prompt = Tk()
+        self.Prompt.title("Spell Slot Counter")
+        self.Prompt.iconbitmap('Fireball Icon.ico')
+        window_width = 369
+        window_height = 194
+        width = int((self.Prompt.winfo_screenwidth()-window_width)/2)
+        height = int((self.Prompt.winfo_screenheight()-window_height)/2)
+        self.Prompt.geometry(f'+{width}+{height}')
+
+        # Bindings for interface.
+        self.Prompt.bind(f"<Escape>", sys.exit)
 
         # Todo Update spacing to increase size of combobox.
-        text = "Spell Slot Counter\nSave Selector"
-        PromptTitle = Label(text=text)
-        PromptTitle.grid(columnspan=2, pady=(10, 5), padx=90)
+        text = "Profile Selector"
+        PromptTitle = Label(text=text, font=('Arial Bold', 14))
+        PromptTitle.grid(columnspan=2, row=0, pady=(10, 5), padx=50)
 
-        SaveSelector = ttk.Combobox(Prompt, values=SaveList)
-        SaveSelector.grid(column=0, row=1, pady=10, padx=10)
-        SaveSelector.current(0)
+        self.profilelist = Listbox(self.Prompt, exportselection=False)
+        self.profilelist.grid(rowspan=2, column=0, pady=(5,10), padx=(15, 0))
 
-        SaveConButton = Button(Prompt, text='Confirm Save', command=self.create_window)
-        SaveConButton.grid(column=1, row=1, pady=10, padx=10)
+        for item in profileList:
+            self.profilelist.insert(END, item)
 
-        # Todo Add function to open save file location.
-        OpenSaveFolder = Button(Prompt, text='Open Save Folder', command=self.open_save_location)
-        OpenSaveFolder.grid(columnspan=2, row=2, pady=10, padx=10)
+        button_width = 15
+        padx_spacing = 15
 
-        Prompt.mainloop()
+        Load_Profile = ttk.Button(self.Prompt, text='Load Profile', width=button_width, command=self.set_profile)
+        Load_Profile.grid(column=1, row=1, padx=padx_spacing)
+
+        New_Profile = ttk.Button(self.Prompt, text='New Profile', width=button_width, command=self.new_profile)
+        New_Profile.grid(column=1, row=1, padx=padx_spacing)
+
+        # Todo Add function to open profile location.
+        Open_Folder = ttk.Button(self.Prompt, text='Open Folder', width=button_width, command=self.open_profile_location)
+        Open_Folder.grid(column=1, row=2, padx=padx_spacing)
+
+        self.Prompt.mainloop()
 
 
 class Tracker:
 
 
-    def __init__(self, save_name):
+    def __init__(self, profile_name):
         # Logging setup
         format = '%(asctime)-15s %(message)s'
         lg.basicConfig(filename='Spell_Tracker.log', level=lg.INFO, format=format, datefmt='%m/%d/%Y %I:%M:%S %p')
         self.spell_log = lg.getLogger()
-        # Save system
-        self.current_save = save_name
-        with open(self.current_save) as json_file:
+        # Profile system
+        self.current_profile = f'Profile/{profile_name}'
+        with open(self.current_profile) as json_file:
             self.data = json.load(json_file)
         self.character_name = self.data['settings']['character_name']
+        self.character_class = self.data['settings']['character_class']
         self.spells_known = self.data['settings']['spell_level_range']
         if self.spells_known > 9:
             self.spells_known = 9
@@ -82,12 +120,12 @@ class Tracker:
         self.no_spell_like_left_info = '0 uses left of'
 
 
-    def write_to_json(self):
+    def write_to_json(self, profile):
         '''
-        Writes updated json data into save file.
+        Writes updated json data into profile.
         '''
         json_object = json.dumps(self.data, indent = 4)  # Serializing json
-        with open(self.current_save, "w") as outfile:  # Writing to sample.json
+        with open(profile, "w") as outfile:  # Writing to sample.json
             outfile.write(json_object)
 
 
@@ -96,15 +134,15 @@ class Tracker:
         spells_per_day = self.data['spells'][f'level_{spell_level}']['spells_per_day']
         if spells_left > 1:
             self.data['spells'][f'level_{spell_level}']['spells_left'] = spells_left - 1
-            text = f"Level {spell_level} - {spells_left} {self.spells_left_info} {spells_per_day}"
+            text = f"Level {spell_level} - {spells_left-1} {self.spells_left_info} {spells_per_day}"
             self.spell_info_list[spell_level-1].config(text=text)
-            self.write_to_json()
+            self.write_to_json(self.current_profile)
         else:
             self.data['spells'][f'level_{spell_level}']['spells_left'] = 0
             text = f'Level {spell_level} - {self.no_spells_left_info} {spells_per_day}'
             self.spell_info_list[spell_level-1].config(text=text)
             self.spell_button_list[spell_level-1].config(state='disabled')
-            self.write_to_json()
+            self.write_to_json(self.current_profile)
         lg.info(f'Level {spell_level} spell used.')
 
 
@@ -115,13 +153,13 @@ class Tracker:
             self.data['spell_like'][spell_like]['uses_left'] = uses_left - 1
             text = f"{spell_like} - {uses_left-1} {self.spell_like_left_info} {uses_per_day}"
             self.spell_like_info_list[index].config(text=text)
-            self.write_to_json()
+            self.write_to_json(self.current_profile)
         else:
             self.data['spell_like'][spell_like]['uses_left'] = 0
             text = f"{spell_like} - {self.no_spell_like_left_info} {uses_per_day}"
             self.spell_like_info_list[index].config(text=text)
             self.spell_like_button_list[index].config(state='disabled')
-            self.write_to_json()
+            self.write_to_json(self.current_profile)
         lg.info(f'{spell_like} used.')
 
 
@@ -129,7 +167,7 @@ class Tracker:
         '''
         Resers slots for all known spell levels to the current spells per day for each level.
         '''
-        lg.info(f'Spell slots reset for {self.current_save}.')
+        lg.info(f'Spell slots reset for {self.current_profile}.')
         # Spells
         for spell_level in range(1, self.spells_known+1):
             spells_left = self.data['spells'][f'level_{spell_level}']['spells_left']
@@ -148,7 +186,7 @@ class Tracker:
             self.spell_like_info_list[index].config(text=text)
             self.spell_like_button_list[index].config(state='normal')
             index += 1
-        self.write_to_json()
+        self.write_to_json(self.current_profile)
         lg.info('Long Rest Completed')
 
 
@@ -166,12 +204,15 @@ class Tracker:
         SpellSlots.iconbitmap('Fireball Icon.ico')
         SpellSlots.resizable(width=False, height=False)
 
-        text = f"Spell Slot Counter\n{self.character_name}"
+        # Bindings for interface.
+        SpellSlots.bind(f"<Escape>", sys.exit)
+
+        text = f'{self.character_name}\n{self.character_class}'
         Title = Label(SpellSlots, text=text, font=('Arial Bold', 18))
-        Title.grid(column=0, row=0)
+        Title.grid(column=0, row=0, pady=5)
 
         SpellFrame = LabelFrame(SpellSlots, text='Spells', font=('Arial Bold', 14))
-        SpellFrame.grid(column=0, row=1, padx=40, pady=(10, 5))
+        SpellFrame.grid(column=0, row=1, padx=40, pady=5)
 
         # Spell Level Info and Buttons
         self.spell_info_list = []
@@ -237,8 +278,8 @@ class Tracker:
         for spell_like in spell_likes:
             uses_left = int(self.data['spell_like'][spell_like]['uses_left'])
             uses_per_day = int(self.data['spell_like'][spell_like]['per_day'])
-            text = f"Use {spell_like}"
-            button_width = 18
+            text = f"Use Ability"
+            button_width = 12
             if uses_left > 0:
                 self.spell_like_button_list[index].config(text=text, width=button_width,
                     command=partial(self.spell_like_button_used, index, spell_like))
@@ -249,13 +290,11 @@ class Tracker:
             index += 1
 
         LongRest = ttk.Button(SpellSlots, text="Long Rest - Reset Slots", width=24, command=self.reset_slots)
-        LongRest.grid(columnspan=2, row=3, pady=10)
+        LongRest.grid(columnspan=2, row=3, pady=(5, 15))
 
         SpellSlots.mainloop()
 
 
 if __name__ == '__main__':
     Selection = Startup()
-    # App = Tracker(selection.save)
-    App = Tracker('Saves/Dain Olaren.json')
-    App.create_window()
+    Selection.profile_select()
