@@ -1,0 +1,57 @@
+{
+    "settings": {
+        "character_name": "Dain Olaren",
+        "character_class": "Sorcerer",
+        "spell_level_range": 3,
+        "excel": "D:/Google Drive/Games/Pathfinder/Pathfinder  - Saturday Game/Dain Olaren Character Sheet.xlsx",
+        "ahk": "D:/Google Drive/Games/Pathfinder/AHK/Role20.ahk"
+    },
+    "spells": {
+        "level_1": {
+            "spells_per_day": 8,
+            "spells_left": 4
+        },
+        "level_2": {
+            "spells_per_day": 7,
+            "spells_left": 6
+        },
+        "level_3": {
+            "spells_per_day": 3,
+            "spells_left": 0
+        },
+        "level_4": {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_5": {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_6": {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_7": {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_8": {
+            "spells_per_day": 0,
+            "spells_left": 0
+        },
+        "level_9": {
+            "spells_per_day": 0,
+            "spells_left": 0
+        }
+    },
+    "spell_like": {
+        "Silver Tongue": {
+            "per_day": 8,
+            "uses_left": 0
+        },
+        "Mind Reading": {
+            "per_day": 2,
+            "uses_left": 2
+        }
+    }
+}
