@@ -1,3 +1,4 @@
+from os import stat
 from tkinter import Tk, ttk, Label, LabelFrame, Listbox, END
 from functools import partial
 import logging as lg
@@ -8,14 +9,8 @@ import os
 
 class Startup:
 
-
     def __init__(self):
-        self.cwd = os.getcwd()
         self.profile = ''
-
-
-    def open_profile_location(self):
-        subprocess.Popen(f'explorer "{self.cwd}\\profiles\\"')
 
 
     def create_profile_list(self):
@@ -23,7 +18,7 @@ class Startup:
         Creates a list of the .json files in the profile folder.
         '''
         profile_list = []
-        for file in os.scandir(f'{self.cwd}/Profiles'):
+        for file in os.scandir(f'{os.getcwd()}/Profiles'):
             if file.name.endswith('.json'):
                 profile_list.append(file.name)
         if len(profile_list) == 0:
@@ -33,30 +28,70 @@ class Startup:
             return profile_list
 
 
+    def refresh_profiles(self):
+        '''
+        Refreshes profile listbox.
+        '''
+        profileList = self.create_profile_list()
+        if len(profileList) == 1:
+            App = Tracker(profileList[0])
+            App.create_window()
+            return
+        self.profilelist.delete(0, END)
+        for item in profileList:
+            self.profilelist.insert(END, item)
+            self.profilelist.select_set(0)
+
+
     def set_profile(self):
         '''
         Sets the profile based on the listbox selection.
         '''
+        # TODO Make load profile pick first entry of nothing is selected
         self.profile = self.profilelist.get(self.profilelist.curselection())
-        App = Tracker(Selection.profile)
+        App = Tracker(self.profile)
         self.Prompt.destroy()
         App.create_window()
 
 
     def new_profile(self):
         '''
-        Creates a new profile.
+        Creates a new profile and refreshes the list.
         '''
-        pass
+        template = {
+        'settings':
+        {'character_name': 'Dain Olaren',
+        'character_class': 'Sorcerer',
+        'spell_level_range': 3,
+        'excel': 'Insert Excel Path Here',
+        'ahk': 'Insert AHK Path Here'},
+        'spells': {
+        'level_1': {'spells_per_day': 8, 'spells_left': 8},
+        'level_2': {'spells_per_day': 7, 'spells_left': 7},
+        'level_3': {'spells_per_day': 3, 'spells_left': 3},
+        'level_4': {'spells_per_day': 0, 'spells_left': 0},
+        'level_5': {'spells_per_day': 0, 'spells_left': 0},
+        'level_6': {'spells_per_day': 0, 'spells_left': 0},
+        'level_7': {'spells_per_day': 0, 'spells_left': 0},
+        'level_8': {'spells_per_day': 0, 'spells_left': 0},
+        'level_9': {'spells_per_day': 0, 'spells_left': 0}},
+        'spell_like':
+        {'Silver Tongue': {'per_day': 8, 'uses_left': 8}}}
+        json_object = json.dumps(template, indent = 4)  # Serializing json
+        with open('Profiles/profile.json', "w") as outfile:  # Writing to sample.json
+            outfile.write(json_object)
+        self.refresh_profiles()
+
+
+    @staticmethod
+    def open_profile_location():
+        '''
+        Opens Profile folder in explorer.
+        '''
+        subprocess.Popen(f'explorer "{os.getcwd()}\\Profiles\\"')
 
 
     def profile_select(self):
-        profileList = self.create_profile_list()
-        print()
-        if len(profileList) == 1:
-            App = Tracker(profileList[0])
-            App.create_window()
-            return
         self.Prompt = Tk()
         self.Prompt.title("Spell Slot Counter")
         self.Prompt.iconbitmap('Fireball Icon.ico')
@@ -67,6 +102,7 @@ class Startup:
         self.Prompt.geometry(f'+{width}+{height}')
 
         # Bindings for interface.
+        self.Prompt.bind("<Key-Return>", self.set_profile)
         self.Prompt.bind(f"<Escape>", sys.exit)
 
         # Todo Update spacing to increase size of combobox.
@@ -75,10 +111,9 @@ class Startup:
         PromptTitle.grid(columnspan=2, row=0, pady=(10, 5), padx=50)
 
         self.profilelist = Listbox(self.Prompt, exportselection=False)
-        self.profilelist.grid(rowspan=2, column=0, pady=(5,10), padx=(15, 0))
+        self.profilelist.grid(rowspan=4, column=0, pady=(5,10), padx=(15, 0))
 
-        for item in profileList:
-            self.profilelist.insert(END, item)
+        self.refresh_profiles()
 
         button_width = 15
         padx_spacing = 15
@@ -87,11 +122,13 @@ class Startup:
         Load_Profile.grid(column=1, row=1, padx=padx_spacing)
 
         New_Profile = ttk.Button(self.Prompt, text='New Profile', width=button_width, command=self.new_profile)
-        New_Profile.grid(column=1, row=1, padx=padx_spacing)
+        New_Profile.grid(column=1, row=2, padx=padx_spacing)
 
-        # Todo Add function to open profile location.
-        Open_Folder = ttk.Button(self.Prompt, text='Open Folder', width=button_width, command=self.open_profile_location)
-        Open_Folder.grid(column=1, row=2, padx=padx_spacing)
+        Refresh_Prof = ttk.Button(self.Prompt, text='Refresh', width=button_width, command=self.refresh_profiles)
+        Refresh_Prof.grid(column=1, row=3, padx=padx_spacing)
+
+        Open_Fold = ttk.Button(self.Prompt, text='Open Folder', width=button_width, command=self.open_profile_location)
+        Open_Fold.grid(column=1, row=4, padx=padx_spacing)
 
         self.Prompt.mainloop()
 
@@ -105,7 +142,7 @@ class Tracker:
         lg.basicConfig(filename='Spell_Tracker.log', level=lg.INFO, format=format, datefmt='%m/%d/%Y %I:%M:%S %p')
         self.spell_log = lg.getLogger()
         # Profile system
-        self.current_profile = f'Profile/{profile_name}'
+        self.current_profile = f'Profiles/{profile_name}'
         with open(self.current_profile) as json_file:
             self.data = json.load(json_file)
         self.character_name = self.data['settings']['character_name']
@@ -113,6 +150,8 @@ class Tracker:
         self.spells_known = self.data['settings']['spell_level_range']
         if self.spells_known > 9:
             self.spells_known = 9
+        self.excel = self.data['settings']['excel']
+        self.ahk = self.data['settings']['ahk']
         # defaul label text
         self.spells_left_info = 'spells left of'
         self.no_spells_left_info = '0 spells left of'
@@ -120,46 +159,80 @@ class Tracker:
         self.no_spell_like_left_info = '0 uses left of'
 
 
-    def write_to_json(self, profile):
+    def run_excel(self):
+        '''
+        Opens the excel doc from the config json.
+        '''
+        cwd = os.getcwd()
+        head_tail  = os.path.split(self.excel)
+        os.chdir(head_tail[0])
+        os.system(f'start excel.exe "{head_tail[1]}"')
+        os.chdir(cwd)
+
+
+    def run_ahk(self):
+        '''
+        Runs the AHK script from the config json.
+        '''
+        print(self.ahk)
+
+
+    def write_to_json(self):
         '''
         Writes updated json data into profile.
         '''
         json_object = json.dumps(self.data, indent = 4)  # Serializing json
-        with open(profile, "w") as outfile:  # Writing to sample.json
+        with open(self.current_profile, "w") as outfile:  # Writing to sample.json
             outfile.write(json_object)
 
 
     def spell_button_used(self, spell_level):
+        '''
+        Decreases entered spell level uses by 1 and updates labels and buttons for the level.
+
+        Arguments:
+
+        spell_level -- spell level that is being cast
+        '''
         spells_left = self.data['spells'][f'level_{spell_level}']['spells_left']
         spells_per_day = self.data['spells'][f'level_{spell_level}']['spells_per_day']
         if spells_left > 1:
             self.data['spells'][f'level_{spell_level}']['spells_left'] = spells_left - 1
             text = f"Level {spell_level} - {spells_left-1} {self.spells_left_info} {spells_per_day}"
             self.spell_info_list[spell_level-1].config(text=text)
-            self.write_to_json(self.current_profile)
+            self.write_to_json()
         else:
             self.data['spells'][f'level_{spell_level}']['spells_left'] = 0
             text = f'Level {spell_level} - {self.no_spells_left_info} {spells_per_day}'
             self.spell_info_list[spell_level-1].config(text=text)
             self.spell_button_list[spell_level-1].config(state='disabled')
-            self.write_to_json(self.current_profile)
+            self.write_to_json()
         lg.info(f'Level {spell_level} spell used.')
 
 
     def spell_like_button_used(self, index, spell_like):
+        '''
+        Decreases entered spell-like ability uses by 1 and updates labels and buttons for the ability.
+
+        Arguments:
+
+        index -- index number for spell like abilities for updating the labels and buttons
+
+        spell_like -- ability that was used
+        '''
         uses_left = int(self.data['spell_like'][spell_like]['uses_left'])
         uses_per_day = int(self.data['spell_like'][spell_like]['per_day'])
         if uses_left > 1:
             self.data['spell_like'][spell_like]['uses_left'] = uses_left - 1
             text = f"{spell_like} - {uses_left-1} {self.spell_like_left_info} {uses_per_day}"
             self.spell_like_info_list[index].config(text=text)
-            self.write_to_json(self.current_profile)
+            self.write_to_json()
         else:
             self.data['spell_like'][spell_like]['uses_left'] = 0
             text = f"{spell_like} - {self.no_spell_like_left_info} {uses_per_day}"
             self.spell_like_info_list[index].config(text=text)
             self.spell_like_button_list[index].config(state='disabled')
-            self.write_to_json(self.current_profile)
+            self.write_to_json()
         lg.info(f'{spell_like} used.')
 
 
@@ -186,7 +259,7 @@ class Tracker:
             self.spell_like_info_list[index].config(text=text)
             self.spell_like_button_list[index].config(state='normal')
             index += 1
-        self.write_to_json(self.current_profile)
+        self.write_to_json()
         lg.info('Long Rest Completed')
 
 
@@ -203,6 +276,7 @@ class Tracker:
         SpellSlots.geometry(f'+{width}+{height}')
         SpellSlots.iconbitmap('Fireball Icon.ico')
         SpellSlots.resizable(width=False, height=False)
+        SpellSlots.focus_force()
 
         # Bindings for interface.
         SpellSlots.bind(f"<Escape>", sys.exit)
