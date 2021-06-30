@@ -32,11 +32,10 @@ The following json example had level 3 through 9 removed so it is not too long.
 ```json
 {
     "settings": {
-        "character_name": "Dain Olaren",
-        "character_class": "Sorcerer",
-        "spell_level_range": 3,
-        "excel": "D:/Google Drive/Games/Pathfinder/Pathfinder  - Saturday Game/Dain Olaren Character Sheet.xlsx",
-        "ahk":"D:/Google Drive/Games/Pathfinder/AHK/Role20.ahk"
+        "character_name": "Leonah Ventris",
+        "character_class": "Unchained Summoner",
+        "spell_level_range": 2,
+        "folder": "D:/Google Drive/Games/Pathfinder/Pathfinder - Second Sunday"
     },
     "spells": {
         "level_1": {
