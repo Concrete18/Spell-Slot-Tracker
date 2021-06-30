@@ -3,8 +3,7 @@
         "character_name": "Leonah Ventris",
         "character_class": "Unchained Summoner",
         "spell_level_range": 1,
-        "excel": "D:/Google Drive/Games/Pathfinder/Pathfinder - Second Sunday/Leonah Ventris - Summoner.xlsx",
-        "ahk": "D:/Google Drive/Games/Pathfinder/AHK/Role20.ahk"
+        "folder": "D:/Google Drive/Games/Pathfinder/Pathfinder - Second Sunday"
     },
     "spells": {
         "level_1": {
