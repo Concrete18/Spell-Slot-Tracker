@@ -2,7 +2,7 @@
 
 My Pathfinder Spell Slot Tracker for Spontaneous Casters.
 
-![Image of Spell Counter](https://i.imgur.com/P8XSlzF.png)
+![Image of Spell Counter](https://raw.githubusercontent.com/Concrete18/Spell-Slot-Tracker/master/Images/Screenshot.png)
 
 ## Why
 
